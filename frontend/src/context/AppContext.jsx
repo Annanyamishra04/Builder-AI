@@ -1,7 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React , { createContext, useCallback, useContext, useEffect, useState } from "react";
 import api from "../api/api";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import debounce from "lodash.debounce";
+
 
 
 const AppContext = createContext(undefined);
@@ -184,6 +186,53 @@ export function AppContextProvider({children}){
         },[user]
     )
 
+    const handleChat = useCallback(
+        async (prompt)=>{
+            if(!activeProject || !user) return;
+            setChatLoading(true)
+            try {
+                const {data} = await api.post(`/api/projects/${activeProject._id}/chat`, {prompt});
+                setActiveProject(data)
+                if(data.errors && data.errors.length > 0){
+                    toast.error(`${data.errors.length} revision path(es) failed`);
+                }else{
+                    toast.success(`Updated to version ${data.version}`);
+                }
+            } catch (err) {
+                console.error("Revision request failed:", err);
+                toast.error(err?.response?.data?.error || "Revision request failed");
+            }finally{
+                setChatLoading(false)
+            }
+
+        },[activeProject, user]
+    )
+
+    const debouncedSave = React.useMemo(
+        ()=>debounce(async (files, id)=>{
+            try {
+                await api.put(`/api/projects/${id}/files`, {files})
+            } catch (err) {
+                console.error("Failed to auto-save files:", err);
+                toast.error("Failed to save code notifications");
+            }
+        }, 1000),[],
+    )
+
+    useEffect(()=>{
+        return ()=>{
+            debouncedSave.cancel();
+        }
+    },[debouncedSave])
+
+    
+    const updateProjectFiles = useCallback(
+        async(files)=>{
+            if(!activeProject || !user) return;
+            debouncedSave(files, activeProject._id)
+        },[activeProject, user, debouncedSave]
+    )
+
 
 
     return (
@@ -194,7 +243,7 @@ export function AppContextProvider({children}){
     chatLoading, generatingProject,
     activeFile, showCode, setActiveFile, setShowCode,
     loadProjects, loadProject,
-    handleGenerate, handleDelete
+    handleGenerate, handleDelete, updateProjectFiles
     }}>
         {children}
     </AppContext.Provider>
