@@ -89,7 +89,7 @@ export function AppContextProvider({children}){
     }
 
     //project actions
-    const loadProjects = async()=>{
+    const loadProjects = useCallback(async()=>{
         if(!user) return;
         try {
             const {data} = await api.get("/api/projects")
@@ -100,9 +100,9 @@ export function AppContextProvider({children}){
         }finally{
             setLoadingProjects(false);
         }
-    }
+    }, [user])
 
-    const loadProject = async (id, silent = false)=>{
+    const loadProject = useCallback(async (id, silent = false)=>{
         if(!user) return;
         if(!silent) setLoadingActiveProject(true)
             try {
@@ -128,7 +128,7 @@ export function AppContextProvider({children}){
                 if(!silent) setLoadingActiveProject(false)
             }
 
-    }
+    }, [user, navigate])
 
     //automatically poll active project status if generating or pending
     useEffect(()=>{
@@ -221,7 +221,7 @@ export function AppContextProvider({children}){
 
     useEffect(()=>{
         return ()=>{
-            debouncedSave.cancel();
+            debouncedSave.flush();
         }
     },[debouncedSave])
 
@@ -243,7 +243,7 @@ export function AppContextProvider({children}){
     chatLoading, generatingProject,
     activeFile, showCode, setActiveFile, setShowCode,
     loadProjects, loadProject,
-    handleGenerate, handleDelete, updateProjectFiles
+    handleGenerate, handleDelete, updateProjectFiles, handleChat
     }}>
         {children}
     </AppContext.Provider>
@@ -258,4 +258,3 @@ export function useAppContext(){
     }
     return context;
 }
-

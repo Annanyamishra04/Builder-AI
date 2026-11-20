@@ -77,7 +77,7 @@ const PreviewPanel = ({project, activeFile, showCode}) => {
 
   const dependencies = useMemo(()=>{
     return detectDependencies()
-  },[liveFiles, activeFile])
+  },[liveFiles])
   
     return (
     <div className='h-full w-full'>
