@@ -6,7 +6,7 @@ import { chat } from "../controllers/chatController.js";
 
 const projectRouter = Router();
 
-projectRouter.get("public/:id", getPublicProject)
+projectRouter.get("/public/:id", getPublicProject)
 
 projectRouter.use(authMiddleware)
 

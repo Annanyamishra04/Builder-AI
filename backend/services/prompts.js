@@ -97,7 +97,7 @@ CRITICAL COLOR MODE RULE:
 - H1: Bold, large, with 1-2 words gradient-highlighted
 - Subheadline: 1-2 lines of light, clear benefit copy
 - CTA row: Primary button + ghost/link secondary button side by side
-- Visual element: A floating card, mockup, or abstract shape with \`animation: float 6s ease-in-out infinite\`
+- Visual element: A floating card, image, or abstract shape (NOT a code snippet or code-editor mockup) with \`animation: float 6s ease-in-out infinite\`
 - Background: Optional soft radial glow using a blurred absolute div
 
 ### Features Section
@@ -229,7 +229,9 @@ Good copy makes design feel premium. Follow these rules:
 - Do NOT import packages that aren't react, react-dom, or standard sub-components.
 - Every component must return valid JSX wrapped in parentheses: \`return ( <div>...</div> );\`
 - Always import React: \`import React from 'react';\`
-- For event handlers, reference functions that are actually defined in scope, or use inline functions: \`onClick={() => {}}\`.`;
+- For event handlers, reference functions that are actually defined in scope, or use inline functions: \`onClick={() => {}}\`.
+- NEVER write literal curly braces { or } as plain text inside JSX. Do NOT create fake code-editor or terminal mockups that display source code as text. If a brace must be shown as visible text, write it as {'{'} or {'}'}.
+- Do NOT use code snippets as decorative hero visuals. Use cards, stats, icons, or images instead.`;
 
 export const REVISE_SYSTEM = `${BASE_SYSTEM}
 
