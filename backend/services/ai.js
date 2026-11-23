@@ -3,7 +3,6 @@ import { generateObject } from 'ai';
 import pMap from "p-map";
 import { FileCodeSchema, FilePlanSchema, RevisionResultSchema } from './aiSchemas.js';
 import { buildFileCodeSystem, FILE_PLAN_SYSTEM, REVISE_SYSTEM } from './prompts.js';
-import { el } from 'zod/v4/locales';
 import { normalizeContent } from './contentNormalizer.js';
 import { validateAndFixCode, validateRevisionContent } from './codeValidator.js';
 
@@ -16,7 +15,7 @@ const openrouter = createOpenAI({
     apiKey: process.env.OPENROUTER_API_KEY,
 })
 
-const model = openrouter(MODEL);
+const model = openrouter.chat(MODEL);
 
 // Generate a single file's code
 async function generateSingleFile(file, allFiles, prompt, alreadyGeneratedFiles){
@@ -141,13 +140,14 @@ export async function generateProject(prompt, callbacks){
         const failedPaths = pendingFiles.map((f)=>f.path).join(", ");
         console.error(`[AI] Failed to generate ${pendingFiles.length} files after all retry rounds: ${failedPaths}`);
 
-        if (pendingFiles.some((f) => f.path === "/App.js")){
+        for (const file of pendingFiles) {
+            const filePath = file.path.startsWith("/") ? file.path : "/" + file.path;
             const ext = file.path.split(".").pop()?.toLowerCase();
 
             if(ext === "css"){
-                files[file.path] = `/* ${file.description} — Generation failed, please retry */\n`
+                files[filePath] = `/* ${file.description} — Generation failed, please retry */\n`
             }else{
-                files[file.path] = "import React from 'react';\n\n" + 
+                files[filePath] = "import React from 'react';\n\n" + 
                 `// ⚠️ This file could not be generated. Please retry.\n` +
                 `// Purpose: ${file.description}\n\n` + 
                 "export default function Placeholder() {\n" +
@@ -159,7 +159,6 @@ export async function generateProject(prompt, callbacks){
                     "}\n";
             }
         }
-
     }
 
     if(!files["/App.js"]){

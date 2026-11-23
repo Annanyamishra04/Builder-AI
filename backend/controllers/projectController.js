@@ -102,7 +102,16 @@ export async function runBackroundGeneration(projectId, prompt) {
             }
         })
         console.log(`[Background AI] Successfully generated project ${projectId}`);
-        if(project){
+         const project = await Project.findById(projectId);
+
+          if(project){
+            const finalFiles = {};
+            for (const [path, code] of Object.entries(result.files)) {
+                finalFiles[path] = {content: code, hash: hashContent(code)};
+            }
+            project.files = finalFiles;
+            project.markModified("files");
+
             project.status = "completed";
             project.version = 1;
             if(result.description){
@@ -111,7 +120,7 @@ export async function runBackroundGeneration(projectId, prompt) {
             project.messages.push({
                 role: "assistant",
                 content: `Website generation complete! You can view and edit the files.`,
-                timeStamp: new Date(),
+                timestamp: new Date(),
             })
             await project.save();
         }
@@ -221,9 +230,7 @@ export async function updateProjectFiles(req, res) {
 
     const filesObj = {};
     for(const [path, entry] of Object.entries(project.files)){
-        if(typeof content === "string"){
-            filesObj[path]= entry.content;
-        }
+       filesObj[path] = entry.content;
     }
 
     res.json({

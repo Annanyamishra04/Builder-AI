@@ -10,7 +10,7 @@ const setSessionCookie = (res, payload)=>{
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 30 * 24 * 60 * 1000,
+        maxAge: 30 * 24 * 60 * 60 *1000,
         path: "/",
     })
 }
@@ -97,5 +97,5 @@ export async function me(req, res) {
         res.status(404).json({error: "User not found"});
         return;
     }
-    res.json("user")
+    res.json({user})
 }

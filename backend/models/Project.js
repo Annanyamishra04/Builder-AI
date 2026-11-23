@@ -12,7 +12,7 @@ const PlannedSchema = new Schema({
 }, {_id: false})
 
 const ProjectSchema = new Schema({
-    name: {type: String, required: true.valueOf, default: "Untitled Project"}, 
+    name: {type: String, required: true, default: "Untitled Project"}, 
     description: {type: String, default:""},
     files: { type: Schema.Types.Mixed, default: {} },
     messages: { type: [MessageSchema], default: []},
