@@ -8,6 +8,8 @@ import projectRouter from "./routes/projectRoutes.js";
 
 
 const app = express();
+app.set("trust proxy", 1)
+
 
 await connectToDatabase()
 

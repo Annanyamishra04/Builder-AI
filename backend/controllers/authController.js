@@ -3,15 +3,22 @@ import jwt from 'jsonwebtoken'
 
 const JWT_SECRET= process.env.JWT_SECRET || "fallback_secret"
 
+// Cookie options (set aur clear dono mein same hone chahiye)
+const isProd = process.env.NODE_ENV === "production"
+
+const cookieOptions = {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+    path: "/",
+}
+
 //Helper to set cookie
 const setSessionCookie = (res, payload)=>{
     const token = jwt.sign(payload, JWT_SECRET, {expiresIn : "30d"})
-    res.cookie('token', token,{
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 30 * 24 * 60 * 60 *1000,
-        path: "/",
+    res.cookie('token', token, {
+        ...cookieOptions,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
     })
 }
 
@@ -66,7 +73,7 @@ export async function login(req, res) {
 
     setSessionCookie(res, {userId: user._id.toString(), email: user.email})
 
-    res.status(201).json({
+    res.json({
         user:{
             _id: user._id,
             name: user.name,
@@ -77,13 +84,7 @@ export async function login(req, res) {
 }
 
 export async function logout(_req, res) {
-    res.cookie("token", "",{
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 30 * 24 * 60 * 1000,
-        path: "/",
-    })
+    res.clearCookie("token", cookieOptions)
     res.json({success: true})
 }
 
